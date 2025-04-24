@@ -13,6 +13,8 @@ body {
     align-items: flex-start;
     color: #ffffff;
     padding: 10px;
+    overflow-y: auto; /* Cho phép cuộn dọc */
+    -webkit-overflow-scrolling: touch; /* Cuộn mượt trên iOS */
     touch-action: none; /* Ngăn chặn hành vi mặc định của touch */
 }
 
@@ -26,6 +28,7 @@ body {
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
     width: 100%;
     max-width: 500px;
+    margin-bottom: 20px; /* Thêm khoảng cách dưới */
 }
 
 .game-info {
@@ -373,23 +376,41 @@ h1 {
 }
 
 @media (max-width: 480px) {
+    body {
+        padding: 0;
+        height: auto;
+    }
+
     .game-container {
         padding: 0.5rem;
-        margin-bottom: 160px; /* Tạo khoảng trống cho nút điều khiển */
+        margin-bottom: 0; /* Bỏ margin bottom */
+        min-height: 100vh;
+    }
+
+    .game-info {
+        overflow-y: auto;
+        padding: 10px;
+    }
+
+    .game-board-container {
+        margin: 10px 0;
     }
 
     #game-board {
-        width: 270px; /* Giảm kích thước bảng game */
+        width: 270px;
         height: 450px;
         margin: 0 auto;
     }
 
-    .game-board-container {
-        margin-bottom: 20px;
+    .score-container, .level-control, .next-piece {
+        padding: 0.5rem;
+        margin-bottom: 0.5rem;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
     }
 
     .control-buttons {
-        position: fixed;
+        position: sticky; /* Thay đổi từ fixed thành sticky */
         bottom: 0;
         left: 0;
         right: 0;
@@ -400,6 +421,7 @@ h1 {
         grid-template-columns: repeat(3, 1fr);
         grid-template-rows: repeat(2, auto);
         z-index: 1000;
+        margin-top: auto; /* Đẩy xuống cuối container */
     }
 
     .control-btn {
@@ -438,16 +460,6 @@ h1 {
         font-size: 16px;
         background-color: rgba(231, 76, 60, 0.9);
     }
-
-    .score-container, .level-control, .next-piece {
-        padding: 0.5rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .score-container p, .level-control p {
-        font-size: 0.9rem;
-        margin: 0.2rem 0;
-    }
 }
 
 /* Thêm styles cho màn hình siêu nhỏ */
@@ -465,9 +477,5 @@ h1 {
     #drop-btn {
         height: 35px;
         font-size: 14px;
-    }
-
-    .game-container {
-        margin-bottom: 140px;
     }
 }
