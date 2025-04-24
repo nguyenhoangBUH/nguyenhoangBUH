@@ -9,11 +9,33 @@
 <body>
     <div class="game-container">
         <div class="game-info">
-            <h1>Tetris</h1>
+            <div class="game-header">
+                <h1>Tetris</h1>
+                <div class="game-controls">
+                    <button id="sound-toggle" class="control-icon">🔊</button>
+                    <button id="pause-btn" class="control-icon">⏸</button>
+                </div>
+            </div>
             <div class="score-container">
                 <p>Điểm: <span id="score">0</span></p>
-                <p>Cấp độ: <span id="level">1</span></p>
+                <p>Điểm cao: <span id="high-score">0</span></p>
+                <p>Cấp độ: <span id="level">10</span></p>
                 <p>Dòng đã xóa: <span id="lines">0</span></p>
+            </div>
+            <div class="level-control">
+                <p>Điều chỉnh cấp độ (10-30):</p>
+                <div class="level-buttons">
+                    <button id="decrease-level" class="level-btn">-</button>
+                    <span id="current-level">10</span>
+                    <button id="increase-level" class="level-btn">+</button>
+                </div>
+                <div class="level-range">
+                    <span class="min-level">10</span>
+                    <div class="level-slider">
+                        <div class="level-progress"></div>
+                    </div>
+                    <span class="max-level">30</span>
+                </div>
             </div>
             <div class="next-piece">
                 <p>Tiếp theo:</p>
@@ -36,8 +58,22 @@
         </div>
         <div class="game-board-container">
             <canvas id="game-board"></canvas>
+            <div id="game-over" class="game-overlay">
+                <h2>Game Over!</h2>
+                <p>Điểm của bạn: <span id="final-score">0</span></p>
+                <button id="restart-btn" class="restart-btn">Chơi lại</button>
+            </div>
+            <div id="pause-screen" class="game-overlay">
+                <h2>Tạm dừng</h2>
+                <button id="resume-btn" class="restart-btn">Tiếp tục</button>
+            </div>
         </div>
     </div>
+    <audio id="move-sound" src="sounds/move.mp3"></audio>
+    <audio id="rotate-sound" src="sounds/rotate.mp3"></audio>
+    <audio id="drop-sound" src="sounds/drop.mp3"></audio>
+    <audio id="clear-sound" src="sounds/clear.mp3"></audio>
+    <audio id="game-over-sound" src="sounds/gameover.mp3"></audio>
     <script src="tetris.js"></script>
 </body>
 </html>

@@ -31,8 +31,22 @@ const ctx = canvas.getContext('2d');
 const nextPieceCanvas = document.getElementById('next-piece-canvas');
 const nextPieceCtx = nextPieceCanvas.getContext('2d');
 const scoreElement = document.getElementById('score');
+const highScoreElement = document.getElementById('high-score');
 const levelElement = document.getElementById('level');
 const linesElement = document.getElementById('lines');
+const gameOverScreen = document.getElementById('game-over');
+const pauseScreen = document.getElementById('pause-screen');
+const soundToggle = document.getElementById('sound-toggle');
+const pauseBtn = document.getElementById('pause-btn');
+const restartBtn = document.getElementById('restart-btn');
+const resumeBtn = document.getElementById('resume-btn');
+
+// Âm thanh
+const moveSound = document.getElementById('move-sound');
+const rotateSound = document.getElementById('rotate-sound');
+const dropSound = document.getElementById('drop-sound');
+const clearSound = document.getElementById('clear-sound');
+const gameOverSound = document.getElementById('game-over-sound');
 
 // Thiết lập kích thước canvas
 canvas.width = COLS * BLOCK_SIZE;
@@ -45,13 +59,18 @@ let board = createBoard();
 let piece = null;
 let nextPiece = null;
 let score = 0;
-let level = 1;
+let highScore = localStorage.getItem('tetrisHighScore') || 0;
+let level = 10;
 let lines = 0;
 let dropCounter = 0;
 let dropInterval = 1000;
 let lastTime = 0;
 let gameOver = false;
 let isPaused = false;
+let isSoundOn = true;
+const MIN_LEVEL = 10;
+const MAX_LEVEL = 30;
+const BASE_DROP_INTERVAL = 1000; // Thời gian rơi cơ bản (ms)
 
 // Thêm các biến cho touch controls
 let touchStartX = 0;
@@ -184,6 +203,8 @@ function playerMove(dir) {
     piece.pos.x += dir;
     if (collide(board, piece)) {
         piece.pos.x -= dir;
+    } else {
+        playSound(moveSound);
     }
 }
 
@@ -203,6 +224,7 @@ function playerRotate() {
             return;
         }
     }
+    playSound(rotateSound);
 }
 
 function playerDrop() {
@@ -211,6 +233,7 @@ function playerDrop() {
     if (collide(board, piece)) {
         piece.pos.y--;
         merge();
+        playSound(dropSound);
         resetPiece();
         clearLines();
         updateScore();
@@ -259,10 +282,13 @@ function clearLines() {
     if (linesCleared > 0) {
         lines += linesCleared;
         score += linesCleared * 100 * level;
-        if (lines % 10 === 0) {
-            level++;
-            dropInterval = Math.max(100, dropInterval - 100);
-        }
+        playSound(clearSound);
+        // Thêm hiệu ứng xóa dòng
+        const rows = document.querySelectorAll('.row');
+        rows.forEach(row => row.classList.add('line-clearing'));
+        setTimeout(() => {
+            rows.forEach(row => row.classList.remove('line-clearing'));
+        }, 300);
     }
 }
 
@@ -284,14 +310,10 @@ function resetPiece() {
     
     if (collide(board, piece)) {
         gameOver = true;
-        alert('Game Over! Điểm của bạn: ' + score);
-        board = createBoard();
-        score = 0;
-        level = 1;
-        lines = 0;
-        dropInterval = 1000;
-        updateScore();
-        gameOver = false;
+        playSound(gameOverSound);
+        updateHighScore();
+        document.getElementById('final-score').textContent = score;
+        gameOverScreen.classList.add('active');
     }
 }
 
@@ -402,6 +424,87 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+// Thêm xử lý sự kiện cho các nút điều chỉnh cấp độ
+document.getElementById('decrease-level').addEventListener('click', () => {
+    if (level > MIN_LEVEL) {
+        level--;
+        updateLevel();
+    }
+});
+
+document.getElementById('increase-level').addEventListener('click', () => {
+    if (level < MAX_LEVEL) {
+        level++;
+        updateLevel();
+    }
+});
+
+// Hàm cập nhật cấp độ
+function updateLevel() {
+    document.getElementById('level').textContent = level;
+    document.getElementById('current-level').textContent = level;
+    dropInterval = Math.max(50, BASE_DROP_INTERVAL - (level - 10) * 50);
+    
+    // Cập nhật thanh tiến trình
+    const progress = ((level - 10) / 20) * 100; // Tính phần trăm từ 10-30
+    document.querySelector('.level-progress').style.width = `${progress}%`;
+}
+
+// Cập nhật điểm cao
+function updateHighScore() {
+    if (score > highScore) {
+        highScore = score;
+        localStorage.setItem('tetrisHighScore', highScore);
+        highScoreElement.textContent = highScore;
+    }
+}
+
+// Phát âm thanh
+function playSound(sound) {
+    if (isSoundOn) {
+        sound.currentTime = 0;
+        sound.play().catch(e => console.log('Không thể phát âm thanh:', e));
+    }
+}
+
+// Bật/tắt âm thanh
+soundToggle.addEventListener('click', () => {
+    isSoundOn = !isSoundOn;
+    soundToggle.textContent = isSoundOn ? '🔊' : '🔇';
+});
+
+// Tạm dừng/Tiếp tục game
+pauseBtn.addEventListener('click', () => {
+    isPaused = !isPaused;
+    pauseScreen.classList.toggle('active', isPaused);
+    pauseBtn.textContent = isPaused ? '▶' : '⏸';
+});
+
+resumeBtn.addEventListener('click', () => {
+    isPaused = false;
+    pauseScreen.classList.remove('active');
+    pauseBtn.textContent = '⏸';
+});
+
+// Chơi lại game
+restartBtn.addEventListener('click', () => {
+    resetGame();
+});
+
+function resetGame() {
+    board = createBoard();
+    score = 0;
+    level = 10;
+    lines = 0;
+    dropInterval = 1000;
+    gameOver = false;
+    isPaused = false;
+    updateScore();
+    updateLevel();
+    gameOverScreen.classList.remove('active');
+    resetPiece();
+}
+
 // Game loop
 function update(time = 0) {
     const deltaTime = time - lastTime;
@@ -420,7 +523,9 @@ function update(time = 0) {
     }
 }
 
-// Bắt đầu game
+// Khởi tạo game
+updateHighScore();
+updateLevel();
 resetPiece();
 drawNextPiece();
 updateScore();
