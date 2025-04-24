@@ -73,13 +73,28 @@ const MIN_LEVEL = 10;
 const MAX_LEVEL = 30;
 const BASE_DROP_INTERVAL = 1000; // Thời gian rơi cơ bản (ms)
 
-// Thêm các biến cho touch controls
-let touchStartX = 0;
-let touchStartY = 0;
-let touchEndX = 0;
-let touchEndY = 0;
-let lastTouchTime = 0;
-const DOUBLE_TAP_DELAY = 300; // Thời gian giữa 2 lần chạm để tính là double tap (ms)
+// Thêm xử lý sự kiện bàn phím
+document.addEventListener('keydown', event => {
+    if (gameOver || isPaused) return;
+    
+    switch (event.keyCode) {
+        case 37: // Left arrow
+            playerMove(-1);
+            break;
+        case 39: // Right arrow
+            playerMove(1);
+            break;
+        case 40: // Down arrow
+            playerDrop();
+            break;
+        case 38: // Up arrow
+            playerRotate();
+            break;
+        case 32: // Space
+            hardDrop();
+            break;
+    }
+});
 
 // Tạo bảng game
 function createBoard() {
@@ -327,105 +342,65 @@ function resetPiece() {
     return true;
 }
 
-// Thêm xử lý sự kiện touch
-canvas.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    touchStartX = e.touches[0].clientX;
-    touchStartY = e.touches[0].clientY;
-    const currentTime = new Date().getTime();
-    
-    // Xử lý double tap để xoay khối
-    if (currentTime - lastTouchTime < DOUBLE_TAP_DELAY) {
-        playerRotate();
-    }
-    lastTouchTime = currentTime;
-});
-
-canvas.addEventListener('touchmove', (e) => {
-    e.preventDefault();
-    touchEndX = e.touches[0].clientX;
-    touchEndY = e.touches[0].clientY;
-    
-    // Tính toán khoảng cách di chuyển
-    const deltaX = touchEndX - touchStartX;
-    const deltaY = touchEndY - touchStartY;
-    
-    // Nếu di chuyển ngang nhiều hơn dọc
-    if (Math.abs(deltaX) > Math.abs(deltaY)) {
-        if (deltaX > 30) { // Vuốt sang phải
-            playerMove(1);
-            touchStartX = touchEndX; // Cập nhật vị trí bắt đầu
-        } else if (deltaX < -30) { // Vuốt sang trái
-            playerMove(-1);
-            touchStartX = touchEndX; // Cập nhật vị trí bắt đầu
-        }
-    }
-});
-
-canvas.addEventListener('touchend', (e) => {
-    e.preventDefault();
-});
-
-// Thêm CSS cho touch controls
-const style = document.createElement('style');
-style.textContent = `
-    #game-board {
-        touch-action: none; /* Ngăn chặn hành vi mặc định của touch */
-    }
-`;
-document.head.appendChild(style);
-
-// Xử lý sự kiện bàn phím
-document.addEventListener('keydown', event => {
-    if (gameOver) return;
-    
-    switch (event.keyCode) {
-        case 37: // Left arrow
-            playerMove(-1);
-            break;
-        case 39: // Right arrow
-            playerMove(1);
-            break;
-        case 40: // Down arrow
-            playerDrop();
-            break;
-        case 38: // Up arrow
-            playerRotate();
-            break;
-        case 32: // Space
-            hardDrop();
-            break;
-        case 80: // P key
-            isPaused = !isPaused;
-            break;
-    }
-});
-
 // Thêm xử lý sự kiện cho các nút điều khiển
 document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('left-btn').addEventListener('click', () => {
-        playerMove(-1);
-    });
-
-    document.getElementById('right-btn').addEventListener('click', () => {
-        playerMove(1);
-    });
-
-    document.getElementById('rotate-btn').addEventListener('click', () => {
-        playerRotate();
-    });
-
-    document.getElementById('down-btn').addEventListener('click', () => {
-        playerDrop();
-    });
-
-    document.getElementById('drop-btn').addEventListener('click', () => {
-        hardDrop();
-    });
-
     // Load high score from localStorage
     highScore = localStorage.getItem('tetrisHighScore') || 0;
     highScoreElement.textContent = highScore;
+    
+    // Lấy các nút điều khiển
+    const leftBtn = document.getElementById('left-btn');
+    const rightBtn = document.getElementById('right-btn');
+    const rotateBtn = document.getElementById('rotate-btn');
+    const downBtn = document.getElementById('down-btn');
+    const dropBtn = document.getElementById('drop-btn');
+    
+    // Thêm xử lý sự kiện click
+    leftBtn.addEventListener('click', () => {
+        playerMove(-1);
+    });
+    
+    rightBtn.addEventListener('click', () => {
+        playerMove(1);
+    });
+    
+    rotateBtn.addEventListener('click', () => {
+        playerRotate();
+    });
+    
+    downBtn.addEventListener('click', () => {
+        playerDrop();
+    });
+    
+    dropBtn.addEventListener('click', () => {
+        hardDrop();
+    });
+    
+    // Thêm xử lý sự kiện touch
+    leftBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        playerMove(-1);
+    });
+    
+    rightBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        playerMove(1);
+    });
+    
+    rotateBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        playerRotate();
+    });
+    
+    downBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        playerDrop();
+    });
+    
+    dropBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        hardDrop();
+    });
     
     // Initialize game
     if (resetPiece()) {
