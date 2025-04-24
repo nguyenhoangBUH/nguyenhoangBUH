@@ -359,21 +359,11 @@ canvas.addEventListener('touchmove', (e) => {
             playerMove(-1);
             touchStartX = touchEndX; // Cập nhật vị trí bắt đầu
         }
-    } else {
-        if (deltaY > 30) { // Vuốt xuống
-            playerDrop();
-            touchStartY = touchEndY; // Cập nhật vị trí bắt đầu
-        }
     }
 });
 
 canvas.addEventListener('touchend', (e) => {
     e.preventDefault();
-    // Chỉ thả khối xuống đáy khi vuốt nhanh và dài
-    if (touchEndY - touchStartY > 100 && 
-        (new Date().getTime() - lastTouchTime) < 200) {
-        hardDrop();
-    }
 });
 
 // Thêm CSS cho touch controls
@@ -432,6 +422,17 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('drop-btn').addEventListener('click', () => {
         hardDrop();
     });
+
+    // Load high score from localStorage
+    highScore = localStorage.getItem('tetrisHighScore') || 0;
+    highScoreElement.textContent = highScore;
+    
+    // Initialize game
+    if (resetPiece()) {
+        drawNextPiece();
+        updateScore();
+        update();
+    }
 });
 
 // Thêm xử lý sự kiện cho các nút điều chỉnh cấp độ
@@ -502,21 +503,42 @@ restartBtn.addEventListener('click', () => {
 });
 
 function resetGame() {
+    // Reset game state
     board = createBoard();
     score = 0;
     level = 10;
     lines = 0;
-    dropInterval = 1000;
+    dropCounter = 0;
+    lastTime = 0;
     gameOver = false;
     isPaused = false;
-    updateScore();
-    updateLevel();
+    
+    // Reset UI elements
+    scoreElement.textContent = '0';
+    highScoreElement.textContent = highScore;
+    levelElement.textContent = '10';
+    linesElement.textContent = '0';
+    document.getElementById('current-level').textContent = '10';
+    document.querySelector('.level-progress').style.width = '0%';
+    
+    // Hide overlays
     gameOverScreen.classList.remove('active');
     pauseScreen.classList.remove('active');
+    
+    // Reset buttons
     pauseBtn.textContent = '⏸';
-    resetPiece();
-    draw();
+    
+    // Reset game board
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Create new pieces
+    piece = createPiece();
+    nextPiece = createPiece();
     drawNextPiece();
+    
+    // Start game loop
+    lastTime = 0;
+    requestAnimationFrame(update);
 }
 
 // Game loop
@@ -535,13 +557,4 @@ function update(time = 0) {
     } else if (!gameOver) {
         requestAnimationFrame(update);
     }
-}
-
-// Khởi tạo game
-updateHighScore();
-updateLevel();
-if (resetPiece()) {
-    drawNextPiece();
-    updateScore();
-    update();
 }
