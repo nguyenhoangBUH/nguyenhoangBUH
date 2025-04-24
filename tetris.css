@@ -94,6 +94,41 @@ h1 {
     margin: 0 auto;
 }
 
+.control-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.control-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: white;
+    font-size: 1.2rem;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 50px;
+}
+
+.control-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+.control-btn:active {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(0.95);
+}
+
+#drop-btn {
+    width: 100%;
+    margin-top: 10px;
+}
+
 /* Thêm media query cho màn hình nhỏ */
 @media (max-width: 480px) {
     .game-container {
