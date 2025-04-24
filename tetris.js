@@ -45,6 +45,7 @@ const resumeBtn = document.getElementById('resume-btn');
 const moveSound = document.getElementById('move-sound');
 const rotateSound = document.getElementById('rotate-sound');
 const dropSound = document.getElementById('drop-sound');
+const landSound = document.getElementById('land-sound');
 const clearSound = document.getElementById('clear-sound');
 const gameOverSound = document.getElementById('game-over-sound');
 
@@ -233,10 +234,14 @@ function playerDrop() {
     if (collide(board, piece)) {
         piece.pos.y--;
         merge();
-        playSound(dropSound);
-        resetPiece();
+        playSound(landSound);
+        if (!resetPiece()) {
+            return;
+        }
         clearLines();
         updateScore();
+    } else {
+        playSound(dropSound);
     }
     dropCounter = 0;
 }
@@ -248,7 +253,10 @@ function hardDrop() {
     }
     piece.pos.y--;
     merge();
-    resetPiece();
+    playSound(landSound);
+    if (!resetPiece()) {
+        return;
+    }
     clearLines();
     updateScore();
     dropCounter = 0;
@@ -314,7 +322,9 @@ function resetPiece() {
         updateHighScore();
         document.getElementById('final-score').textContent = score;
         gameOverScreen.classList.add('active');
+        return false;
     }
+    return true;
 }
 
 // Thêm xử lý sự kiện touch
@@ -359,7 +369,7 @@ canvas.addEventListener('touchmove', (e) => {
 
 canvas.addEventListener('touchend', (e) => {
     e.preventDefault();
-    // Nếu vuốt nhanh xuống dưới, thả khối xuống đáy
+    // Chỉ thả khối xuống đáy khi vuốt nhanh và dài
     if (touchEndY - touchStartY > 100 && 
         (new Date().getTime() - lastTouchTime) < 200) {
         hardDrop();
@@ -502,7 +512,11 @@ function resetGame() {
     updateScore();
     updateLevel();
     gameOverScreen.classList.remove('active');
+    pauseScreen.classList.remove('active');
+    pauseBtn.textContent = '⏸';
     resetPiece();
+    draw();
+    drawNextPiece();
 }
 
 // Game loop
@@ -526,7 +540,8 @@ function update(time = 0) {
 // Khởi tạo game
 updateHighScore();
 updateLevel();
-resetPiece();
-drawNextPiece();
-updateScore();
-update();
+if (resetPiece()) {
+    drawNextPiece();
+    updateScore();
+    update();
+}
