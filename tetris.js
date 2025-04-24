@@ -356,49 +356,54 @@ document.addEventListener('DOMContentLoaded', () => {
     const dropBtn = document.getElementById('drop-btn');
     
     // Thêm xử lý sự kiện click
-    leftBtn.addEventListener('click', () => {
+    leftBtn.addEventListener('click', (e) => {
+        e.preventDefault();
         playerMove(-1);
     });
     
-    rightBtn.addEventListener('click', () => {
+    rightBtn.addEventListener('click', (e) => {
+        e.preventDefault();
         playerMove(1);
     });
     
-    rotateBtn.addEventListener('click', () => {
+    rotateBtn.addEventListener('click', (e) => {
+        e.preventDefault();
         playerRotate();
     });
     
-    downBtn.addEventListener('click', () => {
+    downBtn.addEventListener('click', (e) => {
+        e.preventDefault();
         playerDrop();
     });
     
-    dropBtn.addEventListener('click', () => {
+    dropBtn.addEventListener('click', (e) => {
+        e.preventDefault();
         hardDrop();
     });
     
     // Thêm xử lý sự kiện touch
     leftBtn.addEventListener('touchstart', (e) => {
-        e.preventDefault();
+        e.stopPropagation();
         playerMove(-1);
     });
     
     rightBtn.addEventListener('touchstart', (e) => {
-        e.preventDefault();
+        e.stopPropagation();
         playerMove(1);
     });
     
     rotateBtn.addEventListener('touchstart', (e) => {
-        e.preventDefault();
+        e.stopPropagation();
         playerRotate();
     });
     
     downBtn.addEventListener('touchstart', (e) => {
-        e.preventDefault();
+        e.stopPropagation();
         playerDrop();
     });
     
     dropBtn.addEventListener('touchstart', (e) => {
-        e.preventDefault();
+        e.stopPropagation();
         hardDrop();
     });
     
