@@ -53,6 +53,12 @@ let lastTime = 0;
 let gameOver = false;
 let isPaused = false;
 
+// Thêm các biến cho touch controls
+let touchStartX = 0;
+let touchStartY = 0;
+let touchEndX = 0;
+let touchEndY = 0;
+
 // Tạo bảng game
 function createBoard() {
     return Array.from({length: ROWS}, () => Array(COLS).fill(0));
@@ -285,6 +291,44 @@ function resetPiece() {
         gameOver = false;
     }
 }
+
+// Thêm các hàm xử lý touch
+function handleTouchStart(e) {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+}
+
+function handleTouchMove(e) {
+    touchEndX = e.touches[0].clientX;
+    touchEndY = e.touches[0].clientY;
+    
+    // Tính toán hướng di chuyển
+    const deltaX = touchEndX - touchStartX;
+    const deltaY = touchEndY - touchStartY;
+    
+    // Nếu di chuyển ngang nhiều hơn dọc
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        if (deltaX > 50) { // Di chuyển sang phải
+            playerMove(1);
+        } else if (deltaX < -50) { // Di chuyển sang trái
+            playerMove(-1);
+        }
+    } else {
+        if (deltaY > 50) { // Vuốt xuống
+            playerDrop();
+        } else if (deltaY < -50) { // Vuốt lên
+            playerRotate();
+        }
+    }
+    
+    // Cập nhật vị trí bắt đầu cho lần vuốt tiếp theo
+    touchStartX = touchEndX;
+    touchStartY = touchEndY;
+}
+
+// Thêm các event listener cho touch
+canvas.addEventListener('touchstart', handleTouchStart, false);
+canvas.addEventListener('touchmove', handleTouchMove, false);
 
 // Xử lý sự kiện bàn phím
 document.addEventListener('keydown', event => {
