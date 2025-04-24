@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Tetris</title>
+    <link rel="stylesheet" href="tetris.css">
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-info">
+            <h1>Tetris</h1>
+            <div class="score-container">
+                <p>Điểm: <span id="score">0</span></p>
+                <p>Cấp độ: <span id="level">1</span></p>
+                <p>Dòng đã xóa: <span id="lines">0</span></p>
+            </div>
+            <div class="next-piece">
+                <p>Tiếp theo:</p>
+                <canvas id="next-piece-canvas" width="100" height="100"></canvas>
+            </div>
+            <div class="controls">
+                <p>Điều khiển:</p>
+                <p>← → : Di chuyển</p>
+                <p>↑ : Xoay</p>
+                <p>↓ : Rơi nhanh</p>
+                <p>Space : Thả xuống</p>
+            </div>
+        </div>
+        <canvas id="game-board"></canvas>
+    </div>
+    <script src="tetris.js"></script>
+</body>
+</html>
